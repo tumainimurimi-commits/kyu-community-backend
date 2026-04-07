@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Create Account — KyU Community</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="kirinyaga.css">
+  <script src="app.js" defer></script>
+</head>
+<body>
+<div class="kyu-auth-wrap">
+  <div class="kyu-auth-card" style="max-width:500px">
+    <div class="kyu-auth-head">
+      <div class="kyu-auth-logo-wrap"><i class="fa-solid fa-user-plus"></i></div>
+      <h1>Create Account</h1>
+      <p>Join the KyU Community — it's free</p>
+    </div>
+    <div class="kyu-auth-body">
+
+      <div class="kyu-field">
+        <label for="name"><i class="fa-solid fa-user"></i> Full Name</label>
+        <input type="text" id="name" placeholder="e.g., Jane Muthoni" autocomplete="name">
+      </div>
+
+      <div class="kyu-field">
+        <label for="regNo"><i class="fa-solid fa-id-card"></i> Registration Number <span style="color:#aaa;font-size:.8rem;font-weight:400">(optional)</span></label>
+        <input type="text" id="regNo" placeholder="e.g., ED/S/01/2024">
+      </div>
+
+      <div class="kyu-field">
+        <label for="email"><i class="fa-regular fa-envelope"></i> Email Address</label>
+        <input type="email" id="email" placeholder="you@kyu.ac.ke" autocomplete="email">
+      </div>
+
+      <div class="kyu-field">
+        <label for="password"><i class="fa-solid fa-lock"></i> Password</label>
+        <div class="kyu-input-wrap">
+          <input type="password" id="password" placeholder="At least 6 characters" oninput="checkStrength(this.value)" autocomplete="new-password">
+          <button class="toggle-pw" type="button" onclick="togglePw('password',this)" tabindex="-1"><i class="fa-regular fa-eye"></i></button>
+        </div>
+        <div class="kyu-strength" id="strengthBar"></div>
+        <div id="strengthTxt" style="font-size:.75rem;color:#aaa;margin-top:.2rem;font-family:Inter,sans-serif"></div>
+      </div>
+
+      <div class="kyu-field">
+        <label for="confirm"><i class="fa-solid fa-lock-open"></i> Confirm Password</label>
+        <div class="kyu-input-wrap">
+          <input type="password" id="confirm" placeholder="Re-enter your password" autocomplete="new-password">
+          <button class="toggle-pw" type="button" onclick="togglePw('confirm',this)" tabindex="-1"><i class="fa-regular fa-eye"></i></button>
+        </div>
+      </div>
+
+      <label class="kyu-terms">
+        <input type="checkbox" id="terms">
+        I agree to the <a href="#" style="color:#0B3B2F;font-weight:600">Community Guidelines</a> and will use this platform responsibly.
+      </label>
+
+      <div class="signup-err" id="signupErr"></div>
+
+      <button class="kyu-btn-primary" id="signupBtn" onclick="doSignup()">
+        <i class="fa-solid fa-user-plus"></i>&nbsp; Create Account
+      </button>
+
+      <div class="kyu-auth-footer">Already have an account? <a href="login.html">Sign in</a></div>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    if (KyU.auth.currentUser()) window.location.href = 'home.html';
+  });
+
+  function togglePw(id, btn) {
+    const inp = document.getElementById(id);
+    const txt = inp.type === 'text';
+    inp.type = txt ? 'password' : 'text';
+    btn.querySelector('i').className = txt ? 'fa-regular fa-eye' : 'fa-regular fa-eye-slash';
+  }
+
+  function checkStrength(val) {
+    const bar  = document.getElementById('strengthBar');
+    const txt  = document.getElementById('strengthTxt');
+    if (!val) { bar.style.cssText='height:4px;border-radius:4px;background:#eee;width:0'; txt.textContent=''; return; }
+    let s = 0;
+    if (val.length >= 6) s++; if (val.length >= 10) s++;
+    if (/[A-Z]/.test(val)) s++; if (/[0-9]/.test(val)) s++; if (/[^A-Za-z0-9]/.test(val)) s++;
+    const lvl = [{p:'20%',c:'#dc3545',l:'Very Weak'},{p:'40%',c:'#fd7e14',l:'Weak'},{p:'60%',c:'#ffc107',l:'Fair'},{p:'80%',c:'#20c997',l:'Strong'},{p:'100%',c:'#0B3B2F',l:'Very Strong'}];
+    const L = lvl[Math.min(s,4)];
+    bar.style.cssText = `height:4px;border-radius:4px;background:${L.c};width:${L.p};transition:.4s`;
+    txt.textContent = L.l; txt.style.color = L.c;
+  }
+
+  async function doSignup() {
+    const name     = document.getElementById('name').value.trim();
+    const regNo    = document.getElementById('regNo').value.trim();
+    const email    = document.getElementById('email').value.trim();
+    const password = document.getElementById('password').value;
+    const confirm  = document.getElementById('confirm').value;
+    const terms    = document.getElementById('terms').checked;
+    const err      = document.getElementById('signupErr');
+    const btn      = document.getElementById('signupBtn');
+    err.style.display = 'none';
+    if (!name)               { showErr('Please enter your full name.'); return; }
+    if (!email)              { showErr('Please enter your email address.'); return; }
+    if (password.length < 6) { showErr('Password must be at least 6 characters.'); return; }
+    if (password !== confirm) { showErr('Passwords do not match.'); return; }
+    if (!terms)              { showErr('Please accept the Community Guidelines.'); return; }
+
+    btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>&nbsp; Creating account…';
+    const result = await KyU.auth.signup({ name, email, password, regNo });
+    if (result.ok) {
+      btn.innerHTML = '<i class="fa-solid fa-check"></i>&nbsp; Account Created!';
+      btn.style.background = '#0B3B2F'; btn.style.color = '#fff';
+      KyU.ui.toast(`Welcome, ${result.user.name}! 🎉`, 'success');
+      setTimeout(() => window.location.href = 'home.html', 900);
+    } else {
+      btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-user-plus"></i>&nbsp; Create Account';
+      btn.style.background = ''; btn.style.color = '';
+      showErr(result.error || 'Registration failed. Please try again.');
+    }
+  }
+  function showErr(m) { const e = document.getElementById('signupErr'); e.textContent = m; e.style.display = 'block'; }
+</script>
+</body>
+</html>

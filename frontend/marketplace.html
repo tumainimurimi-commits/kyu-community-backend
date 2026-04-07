@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KyU Marketplace</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="kirinyaga.css">
+  <script src="app.js"></script>
+</head>
+<body>
+  <div class="header-top">
+    <div class="logo-kirinyaga"><i class="fa-solid fa-users"></i><span>KyU Community</span></div>
+    <div class="header-buttons">
+      <button class="btn btn-outline-light d-lg-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileMenu"><i class="fa-solid fa-bars"></i></button>
+    </div>
+  </div>
+  <div class="market-header">
+    <h1><i class="fa-solid fa-store" style="color:#F4A300"></i> KyU Marketplace</h1>
+    <p>Buy and sell safely within the university community</p>
+    <a href="upload-marketplace.html" class="btn-big"><i class="fa-solid fa-plus"></i> Sell an Item</a>
+  </div>
+  <div class="search-bar" style="max-width:860px">
+    <input type="text" id="searchInput" placeholder="Search for anything…" oninput="filterItems()">
+    <select id="catFilter" onchange="filterItems()">
+      <option value="">All Categories</option>
+      <option value="electronics">Electronics</option>
+      <option value="books">Books</option>
+      <option value="furniture">Furniture</option>
+      <option value="clothing">Clothing</option>
+      <option value="other">Other</option>
+    </select>
+    <button onclick="filterItems()"><i class="fa-solid fa-magnifying-glass"></i> Search</button>
+  </div>
+  <div style="max-width:1200px;margin:0 auto;padding:0 20px .5rem;display:flex;gap:.6rem;align-items:center;flex-wrap:wrap">
+    <span style="font-size:.85rem;color:#888">Sort:</span>
+    <button class="filter-chip active" onclick="setSort(this,'newest')">Newest</button>
+    <button class="filter-chip" onclick="setSort(this,'price-low')">Price ↑</button>
+    <button class="filter-chip" onclick="setSort(this,'price-high')">Price ↓</button>
+    <span id="itemCount" style="margin-left:auto;font-size:.85rem;color:#aaa"></span>
+  </div>
+  <div class="offcanvas offcanvas-end" tabindex="-1" id="mobileMenu">
+    <div class="offcanvas-header"><h5 class="offcanvas-title">Menu</h5><button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button></div>
+    <div class="offcanvas-body"><ul class="navbar-nav">
+      <li class="nav-item"><a class="nav-link" href="home.html"><i class="fa-solid fa-house me-2"></i>Home</a></li>
+      <li class="nav-item"><a class="nav-link" href="lost.html"><i class="fa-solid fa-triangle-exclamation me-2"></i>Lost Items</a></li>
+      <li class="nav-item"><a class="nav-link" href="found.html"><i class="fa-solid fa-magnifying-glass me-2"></i>Found Items</a></li>
+      <li class="nav-item"><a class="nav-link" href="announcement.html"><i class="fa-solid fa-bullhorn me-2"></i>Announcements</a></li>
+      <li class="nav-item mt-2"><a class="nav-link text-danger" href="#" onclick="KyU.auth.logout()"><i class="fa-solid fa-right-from-bracket me-2"></i>Logout</a></li>
+    </ul></div>
+  </div>
+  <nav class="navbar navbar-expand-lg bg-light d-none d-lg-block">
+    <div class="container"><div class="navbar-nav ms-auto">
+      <a class="nav-link link-modify" href="home.html">Home</a>
+      <a class="nav-link link-modify" href="lost.html">Lost Items</a>
+      <a class="nav-link link-modify" href="found.html">Found Items</a>
+      <a class="nav-link link-modify" href="announcement.html">Announcements</a>
+    </div></div>
+  </nav>
+  <main class="market-grid" id="marketGrid"></main>
+  <footer><div class="footer-grid">
+    <div class="footer-about"><h3>Kirinyaga University</h3><p>Secure platform for the KyU community.</p></div>
+    <div class="footer-links"><h3>Quick Links</h3><nav class="footer-nav"><a href="home.html">Home</a><a href="lost.html">Report Lost</a><a href="found.html">Found Items</a><a href="announcement.html">Announcements</a></nav></div>
+    <div class="contact-information"><h3>Contact</h3><p><i class="fa-solid fa-phone"></i> Admin: 0791739492</p><p><i class="fa-solid fa-envelope"></i> tumainimurimi7@gmail.com</p><p><i class="fa-solid fa-envelope"></i> kyuuniversity@gmail.com</p></div>
+  </div><div class="copyright"><p>&copy; 2026 Kirinyaga University Community System. All rights reserved.</p><p>Secure | Verified | Trusted Platform</p></div></footer>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    let allItems = [], sortMode = 'newest';
+    const wishlist = JSON.parse(localStorage.getItem('kyu_wishlist')||'[]');
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      if (!KyU.auth.requireAuth()) return;
+      KyU.ui.injectUserNav();
+      allItems = await KyU.storage.getItems('marketplace');
+      renderItems(allItems);
+    });
+
+    function filterItems() {
+      const q   = document.getElementById('searchInput').value.toLowerCase();
+      const cat = document.getElementById('catFilter').value;
+      let r = allItems;
+      if (cat) r = r.filter(i => i.category === cat);
+      if (q)   r = r.filter(i => ((i.title||'')+(i.description||'')+(i.location||'')).toLowerCase().includes(q));
+      if (sortMode === 'price-low')  r = [...r].sort((a,b)=>Number(a.price)-Number(b.price));
+      if (sortMode === 'price-high') r = [...r].sort((a,b)=>Number(b.price)-Number(a.price));
+      renderItems(r);
+    }
+    function setSort(btn, mode) {
+      document.querySelectorAll('.filter-chip').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active'); sortMode = mode; filterItems();
+    }
+    function toggleWishlist(id, btn) {
+      const idx = wishlist.indexOf(id);
+      if (idx === -1) { wishlist.push(id); btn.classList.add('active'); KyU.ui.toast('Added to wishlist ❤️','success'); }
+      else            { wishlist.splice(idx,1); btn.classList.remove('active'); KyU.ui.toast('Removed from wishlist','info'); }
+      localStorage.setItem('kyu_wishlist', JSON.stringify(wishlist));
+    }
+
+    function renderItems(items) {
+      const grid = document.getElementById('marketGrid');
+      document.getElementById('itemCount').textContent = `${items.length} item${items.length!==1?'s':''}`;
+      if (!items.length) { KyU.ui.emptyState(grid,'store','No items listed yet','Be the first to sell something!'); return; }
+      const user = KyU.auth.currentUser();
+      grid.innerHTML = items.map((item,idx) => {
+        const isOwner = item.postedBy === user.id;
+        const wished  = wishlist.includes(item.id);
+        const img     = item.image || KyU.svgPlaceholder(item.title||'Item');
+        return `
+        <div class="item-card kyu-card-anim" style="animation-delay:${idx*.05}s">
+          <div class="img-wrap">
+            <img src="${img}" alt="${item.title||'Item'}" style="width:100%;height:180px;object-fit:cover;cursor:zoom-in" onclick="zoomImg('${img.replace(/'/g,"\\'")}')">
+            <button class="wishlist-btn ${wished?'active':''}" onclick="toggleWishlist('${item.id}',this)">
+              <i class="fa-${wished?'solid':'regular'} fa-heart"></i>
+            </button>
+            <span class="views-badge"><i class="fa-regular fa-eye"></i> ${item.views||0}</span>
+          </div>
+          <div class="card-content">
+            <div class="price">${Number(item.price||0).toLocaleString()}</div>
+            <div style="display:flex;justify-content:space-between;align-items:flex-start">
+              <h3 style="flex:1;font-size:1rem;margin-bottom:.4rem">${item.title||'Item'}</h3>
+              ${isOwner?`<button class="kyu-delete-btn" onclick="delItem('${item.id}')"><i class="fa-solid fa-trash"></i></button>`:''}
+            </div>
+            <div class="meta">
+              <span><i class="fa-solid fa-location-dot"></i> ${item.location||'—'}</span>
+              <span><i class="fa-regular fa-clock"></i> ${KyU.ui.timeAgo(item.createdAt)}</span>
+            </div>
+            <p style="color:#666;font-size:.88rem;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;margin-bottom:.8rem">${(item.description||'').substring(0,100)}</p>
+            <div class="card-footer">
+              <button class="contact-btn" onclick="contactSeller('${item.id}')"><i class="fa-regular fa-message"></i> Contact</button>
+              <span style="color:#888;font-size:.82rem;cursor:pointer" onclick="viewDetails('${item.id}')"><i class="fa-solid fa-expand"></i> Details</span>
+            </div>
+          </div>
+        </div>`;
+      }).join('');
+
+      // increment views on hover (once)
+      document.querySelectorAll('.item-card').forEach((card, idx) => {
+        card.addEventListener('mouseenter', () => {
+          if (items[idx]) { items[idx].views = (items[idx].views||0)+1; KyU.storage.updateItem('marketplace', items[idx].id, { views:items[idx].views }); }
+        }, { once:true });
+      });
+    }
+
+    async function delItem(id) {
+      if (!KyU.ui.confirm('Remove this listing?')) return;
+      await KyU.storage.deleteItem('marketplace', id);
+      allItems = allItems.filter(i => i.id !== id);
+      renderItems(allItems); KyU.ui.toast('Listing removed.','info');
+    }
+
+    function contactSeller(id) {
+      const item = allItems.find(i => i.id === id);
+      if (!item) return;
+      KyU.ui.modal(`Contact Seller – ${item.title}`, `
+        <div style="text-align:center;margin-bottom:1rem">
+          <img src="${item.image||KyU.svgPlaceholder(item.title)}" style="max-height:140px;border-radius:10px;object-fit:cover;max-width:100%">
+        </div>
+        <div class="kyu-info-row"><i class="fa-solid fa-tag"></i><span>Price: <strong style="color:#0B3B2F">KSh ${Number(item.price||0).toLocaleString()}</strong></span></div>
+        <div class="kyu-info-row"><i class="fa-solid fa-location-dot"></i><span>${item.location||'—'}</span></div>
+        ${item.contact?`<div class="kyu-info-row"><i class="fa-solid fa-phone"></i><span>${item.contact}</span></div>`:''}
+        <hr style="margin:1rem 0">
+        <p style="font-size:.9rem;color:#555;margin-bottom:.8rem">Send the seller a message:</p>
+        <textarea id="msgText" rows="3" placeholder="Hi, I'm interested in your ${item.title}…" style="width:100%;padding:.7rem;border:2px solid #ddd;border-radius:8px;font-family:Inter,sans-serif;resize:vertical;font-size:.93rem"></textarea>`,
+        `<button onclick="sendMsg('${id}')" style="background:#F4A300;color:#0B3B2F;border:none;padding:.75rem 1.8rem;border-radius:50px;font-weight:700;cursor:pointer;font-family:Inter,sans-serif;flex:1;transition:.25s" onmouseover="this.style.background='#0B3B2F';this.style.color='#fff'" onmouseout="this.style.background='#F4A300';this.style.color='#0B3B2F'">
+          <i class="fa-regular fa-paper-plane"></i> Send Message
+        </button>`);
+    }
+
+    async function sendMsg(id) {
+      const txt = document.getElementById('msgText')?.value.trim();
+      if (!txt) { KyU.ui.toast('Please type a message.','warning'); return; }
+      await KyU.storage.sendMessage(id, 'marketplace', txt);
+      document.getElementById('kyuModal')?.remove();
+      KyU.ui.toast('Message sent! The seller will be notified.','success');
+    }
+
+    function viewDetails(id) {
+      const item = allItems.find(i => i.id === id);
+      if (!item) return;
+      KyU.ui.modal(item.title||'Item', `
+        ${item.image?`<img src="${item.image}" style="width:100%;border-radius:10px;margin-bottom:1rem;max-height:220px;object-fit:cover;cursor:zoom-in" onclick="document.getElementById('kyuModal').remove();zoomImg('${item.image.replace(/'/g,"\\'")}')">`:''}
+        <div class="kyu-info-row"><i class="fa-solid fa-tag"></i><span>KSh <strong style="font-size:1.2rem;color:#0B3B2F">${Number(item.price||0).toLocaleString()}</strong></span></div>
+        <div class="kyu-info-row"><i class="fa-solid fa-boxes-stacked"></i><span>Category: ${item.category||'—'}</span></div>
+        <div class="kyu-info-row"><i class="fa-solid fa-star-half-stroke"></i><span>Condition: ${item.itemCondition||item.condition||'—'}</span></div>
+        <div class="kyu-info-row"><i class="fa-solid fa-location-dot"></i><span>${item.location||'—'}</span></div>
+        <div class="kyu-info-row"><i class="fa-regular fa-clock"></i><span>${KyU.ui.timeAgo(item.createdAt)}</span></div>
+        <div class="kyu-info-row"><i class="fa-regular fa-user"></i><span>By: ${item.postedByName||'—'}</span></div>
+        <hr style="margin:1rem 0">
+        <p style="color:#555;line-height:1.7;font-size:.95rem">${item.description||'No description provided.'}</p>`);
+    }
+
+    function zoomImg(src) {
+      if (!src) return;
+      const d = document.createElement('div'); d.className='kyu-img-modal';
+      d.innerHTML=`<img src="${src}" alt="preview">`; d.onclick=()=>d.remove();
+      document.body.appendChild(d);
+    }
+  </script>
+</body>
+</html>

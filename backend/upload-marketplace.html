@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Post Announcement - KyU Community</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="kirinyaga.css">
+  <link rel="stylesheet" href="announcement.css">
+  <script src="app.js"></script>
+</head>
+<body>
+  <div class="header-top">
+    <div class="logo-kirinyaga"><i class="fa-solid fa-users"></i><span>KyU Community</span></div>
+    <div class="header-buttons"></div>
+  </div>
+ 
+  <div class="form-container">
+    <div class="form-header">
+      <h1><i class="fa-solid fa-bullhorn" style="color:#F4A300"></i> Post an Announcement</h1>
+      <p>Share news, events, or important information with the KyU community</p>
+    </div>
+    <div class="form-content">
+ 
+      <!-- Character count preview -->
+      <div id="charPreview" style="background:#f1f3f5;border-radius:10px;padding:1rem;margin-bottom:1.5rem;display:none">
+        <strong id="previewTitle" style="color:#0B3B2F;font-size:1.1rem"></strong>
+        <p id="previewDesc" style="color:#666;font-size:.9rem;margin:.3rem 0 0"></p>
+      </div>
+ 
+      <div class="form-group">
+        <label for="title">Title <span class="badge-required">Required</span></label>
+        <input type="text" id="title" class="form-control" placeholder="e.g., Career Fair 2026" oninput="updatePreview()">
+        <div class="field-err" id="titleErr"></div>
+      </div>
+ 
+      <div class="form-group">
+        <label for="category">Category <span class="badge-required">Required</span></label>
+        <select id="category" class="form-control">
+          <option value="">Select a category</option>
+          <option value="event">Event</option>
+          <option value="academic">Academic</option>
+          <option value="sports">Sports</option>
+          <option value="lost-found">Lost & Found (cross-post)</option>
+          <option value="general">General</option>
+        </select>
+        <div class="field-err" id="catErr"></div>
+      </div>
+ 
+      <div class="form-group">
+        <label for="description">Description <span class="badge-required">Required</span></label>
+        <textarea id="description" rows="5" class="form-control" placeholder="Provide full details..." oninput="updatePreview(); countChars()"></textarea>
+        <div style="display:flex;justify-content:space-between;margin-top:.3rem">
+          <div class="field-err" id="descErr"></div>
+          <span id="charCount" style="font-size:.78rem;color:#aaa">0 characters</span>
+        </div>
+      </div>
+ 
+      <div class="form-group">
+        <label>Upload Poster/Image <span style="color:#aaa;font-weight:400">(optional)</span></label>
+        <div class="file-upload" onclick="document.getElementById('imageUpload').click()"
+          ondrop="handleDrop(event)" ondragover="e=>e.preventDefault()">
+          <i class="fa-solid fa-cloud-upload-alt"></i>
+          <p id="fileName">Click to select an image or drag here</p>
+        </div>
+        <input type="file" id="imageUpload" name="image" accept="image/*" onchange="handleImage(this)">
+        <img id="imgPreview" class="kyu-img-preview" alt="preview">
+      </div>
+ 
+      <div class="form-group">
+        <label for="eventDate">Event Date <span style="color:#aaa;font-weight:400">(if applicable)</span></label>
+        <input type="date" id="eventDate" class="form-control">
+      </div>
+ 
+      <div class="form-group">
+        <label for="expiryDate">Expiration Date <span class="badge-required">Required</span></label>
+        <input type="date" id="expiryDate" class="form-control">
+        <small class="text-muted">After this date, the announcement will no longer appear prominently.</small>
+        <div class="field-err" id="expiryErr"></div>
+      </div>
+ 
+      <div class="form-group">
+        <label for="postedBy">Your Name / Department <span style="color:#aaa;font-weight:400">(optional)</span></label>
+        <input type="text" id="postedBy" class="form-control" placeholder="e.g., John Doe, Student Council">
+      </div>
+ 
+      <!-- Word filter warning -->
+      <div id="wordFilterWarning" class="word-filter-warning">
+        <i class="fa-solid fa-circle-exclamation"></i> Your announcement contains inappropriate language. Please revise.
+      </div>
+ 
+      <div class="safety-tip">
+        <i class="fa-solid fa-shield-halved"></i>
+        <strong>Community Guidelines:</strong> Keep announcements respectful and relevant. Inappropriate content will be removed.
+      </div>
+ 
+      <button type="button" class="btn-submit" id="submitBtn" onclick="submitForm()" style="margin-top:1rem">
+        <i class="fa-solid fa-check"></i> Post Announcement
+      </button>
+ 
+      <a href="announcement.html" class="back-link"><i class="fa-solid fa-arrow-left"></i> View All Announcements</a>
+    </div>
+  </div>
+ 
+  <footer style="margin-top:0;text-align:center;padding:1rem;background:#1A2E40;color:white">
+    <p>&copy; 2026 Kirinyaga University Community</p>
+  </footer>
+ 
+  <style>.field-err{color:#dc3545;font-size:.82rem;margin-top:.3rem;display:none}</style>
+ 
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    let imageBase64 = null;
+    const forbidden = ['badword','propaganda','hate','spam','insult'];
+ 
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!KyU.auth.requireAuth()) return;
+      // Set min expiry date to today
+      const today = new Date().toISOString().split('T')[0];
+      document.getElementById('expiryDate').min = today;
+      const user = KyU.auth.currentUser();
+      document.getElementById('postedBy').value = user.name;
+    });
+ 
+    function updatePreview() {
+      const t = document.getElementById('title').value;
+      const d = document.getElementById('description').value;
+      const prev = document.getElementById('charPreview');
+      if (t || d) {
+        prev.style.display = 'block';
+        document.getElementById('previewTitle').textContent = t || 'Your title here…';
+        document.getElementById('previewDesc').textContent = (d||'').substring(0,100)+(d.length>100?'…':'');
+      } else {
+        prev.style.display = 'none';
+      }
+    }
+ 
+    function countChars() {
+      const len = document.getElementById('description').value.length;
+      document.getElementById('charCount').textContent = `${len} character${len!==1?'s':''}`;
+    }
+ 
+    async function handleImage(input) {
+      if (!input.files.length) return;
+      const file = input.files[0];
+      document.getElementById('fileName').textContent = file.name;
+      imageBase64 = await KyU.resizeImage(file);
+      const prev = document.getElementById('imgPreview');
+      prev.src = imageBase64; prev.style.display = 'block';
+    }
+ 
+    function handleDrop(e) {
+      e.preventDefault();
+      const file = e.dataTransfer.files[0];
+      if (file?.type.startsWith('image/')) {
+        const input = document.getElementById('imageUpload');
+        const dt = new DataTransfer(); dt.items.add(file); input.files = dt.files;
+        handleImage(input);
+      }
+    }
+ 
+    function showErr(id, msg) { const e=document.getElementById(id); e.textContent=msg; e.style.display='block'; }
+    function clearErr(id)     { document.getElementById(id).style.display='none'; }
+ 
+    function submitForm() {
+      const title  = document.getElementById('title').value.trim();
+      const cat    = document.getElementById('category').value;
+      const desc   = document.getElementById('description').value.trim();
+      const expiry = document.getElementById('expiryDate').value;
+      let ok = true;
+ 
+      if (!title) { showErr('titleErr','Please enter a title.'); ok=false; } else clearErr('titleErr');
+      if (!cat)   { showErr('catErr','Please select a category.'); ok=false; } else clearErr('catErr');
+      if (!desc)  { showErr('descErr','Please enter a description.'); ok=false; } else clearErr('descErr');
+      if (!expiry){ showErr('expiryErr','Please set an expiration date.'); ok=false; } else {
+        clearErr('expiryErr');
+        if (new Date(expiry) < new Date()) { showErr('expiryErr','Expiry must be in the future.'); ok=false; }
+      }
+ 
+      // Word filter
+      const combined = (title+' '+desc).toLowerCase();
+      const warn = document.getElementById('wordFilterWarning');
+      if (forbidden.some(w => combined.includes(w))) {
+        warn.style.display = 'block'; return;
+      } else { warn.style.display = 'none'; }
+ 
+      if (!ok) return;
+ 
+      const user = KyU.auth.currentUser();
+      const btn  = document.getElementById('submitBtn');
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Posting…';
+ 
+      setTimeout(() => {
+        KyU.storage.saveItem('announcements', {
+          title,
+          category:    cat,
+          description: desc,
+          image:       imageBase64,
+          eventDate:   document.getElementById('eventDate').value,
+          expiryDate:  expiry,
+          postedByName:document.getElementById('postedBy').value.trim() || user.name,
+          postedBy:    user.id
+        });
+        KyU.ui.toast('Announcement posted successfully! 📣','success');
+        setTimeout(() => window.location.href = 'announcement.html', 1000);
+      }, 600);
+    }
+  </script>
+</body>
+</html>

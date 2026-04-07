@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sell an Item - KyU Marketplace</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="kirinyaga.css">
+  <link rel="stylesheet" href="marketplace.css">
+  <script src="app.js"></script>
+</head>
+<body>
+  <div class="header-top">
+    <div class="logo-kirinyaga"><i class="fa-solid fa-users"></i><span>KyU Community</span></div>
+    <div class="header-buttons"></div>
+  </div>
+ 
+  <div class="form-container">
+    <div class="form-header">
+      <h1><i class="fa-solid fa-store" style="color:#F4A300"></i> Sell an Item</h1>
+      <p>Post your item for free to the KyU community</p>
+    </div>
+    <div class="form-content">
+ 
+      <!-- Live price preview -->
+      <div id="pricePreview" style="display:none;background:linear-gradient(135deg,#0B3B2F,#1a5c47);color:#fff;border-radius:12px;padding:1.2rem;margin-bottom:1.5rem;text-align:center">
+        <div style="font-size:.85rem;color:#a8d5c2">Listing Preview</div>
+        <div style="font-size:2rem;font-weight:700;color:#F4A300" id="priceDisp">KSh 0</div>
+        <div style="font-size:1rem;font-weight:600" id="titleDisp">Your Item Title</div>
+      </div>
+ 
+      <div class="form-group">
+        <label for="title">Title <span class="badge-required">Required</span></label>
+        <input type="text" id="title" class="form-control" placeholder="e.g., HP Laptop, Textbook Set" oninput="updatePreview()">
+        <div class="field-err" id="titleErr"></div>
+      </div>
+ 
+      <div class="form-group">
+        <label for="category">Category <span class="badge-required">Required</span></label>
+        <select id="category" class="form-control">
+          <option value="">Select a category</option>
+          <option value="electronics">Electronics</option>
+          <option value="books">Books & Study Materials</option>
+          <option value="furniture">Furniture</option>
+          <option value="clothing">Clothing & Accessories</option>
+          <option value="other">Other</option>
+        </select>
+        <div class="field-err" id="catErr"></div>
+      </div>
+ 
+      <div class="form-group">
+        <label for="price">Price (KSh) <span class="badge-required">Required</span></label>
+        <div style="position:relative">
+          <span style="position:absolute;left:12px;top:50%;transform:translateY(-50%);font-weight:600;color:#888">KSh</span>
+          <input type="number" id="price" class="form-control" placeholder="e.g., 15000" style="padding-left:3.5rem" oninput="updatePreview()" min="0">
+        </div>
+        <div class="field-err" id="priceErr"></div>
+      </div>
+ 
+      <div class="form-group">
+        <label for="condition">Condition</label>
+        <select id="condition" class="form-control">
+          <option value="new">Brand New</option>
+          <option value="like-new">Like New</option>
+          <option value="good" selected>Good</option>
+          <option value="fair">Fair</option>
+          <option value="for-parts">For Parts</option>
+        </select>
+      </div>
+ 
+      <div class="form-group">
+        <label for="description">Description <span class="badge-required">Required</span></label>
+        <textarea id="description" rows="4" class="form-control" placeholder="Describe your item (condition, features, what's included...)"></textarea>
+        <div class="field-err" id="descErr"></div>
+      </div>
+ 
+      <div class="form-group">
+        <label>Upload Image <span style="color:#aaa;font-weight:400">(optional but strongly recommended)</span></label>
+        <div class="file-upload" onclick="document.getElementById('imageUpload').click()"
+          ondrop="handleDrop(event)" ondragover="e=>e.preventDefault()" style="transition:border .25s">
+          <i class="fa-solid fa-cloud-upload-alt"></i>
+          <p id="fileName">Click or drag your image here</p>
+          <small style="color:#aaa;display:block;margin-top:.3rem">Items with photos get 3× more views!</small>
+        </div>
+        <input type="file" id="imageUpload" name="image" accept="image/*" onchange="handleImage(this)">
+        <img id="imgPreview" class="kyu-img-preview" alt="preview">
+      </div>
+ 
+      <div class="form-group">
+        <label for="location">Location <span class="badge-required">Required</span></label>
+        <input type="text" id="location" class="form-control" placeholder="e.g., Kerugoya, Kutus, Campus">
+        <div class="field-err" id="locErr"></div>
+      </div>
+ 
+      <div class="form-group">
+        <label for="contact">Contact Info <span style="color:#aaa;font-weight:400">(optional)</span></label>
+        <input type="text" id="contact" class="form-control" placeholder="Phone number or email for buyers">
+      </div>
+ 
+      <div class="safety-tip">
+        <i class="fa-solid fa-shield-halved"></i>
+        <strong>Safety Tips:</strong> Meet in public places, inspect the item before paying, and never send money upfront.
+      </div>
+ 
+      <button type="button" class="btn-submit" id="submitBtn" onclick="submitForm()" style="margin-top:1.2rem">
+        <i class="fa-solid fa-check"></i> Post Item
+      </button>
+ 
+      <a href="marketplace.html" class="back-link"><i class="fa-solid fa-arrow-left"></i> Back to Marketplace</a>
+    </div>
+  </div>
+ 
+  <footer style="margin-top:0;text-align:center;padding:1rem;background:#1A2E40;color:white">
+    <p>&copy; 2026 Kirinyaga University Community</p>
+  </footer>
+ 
+  <style>.field-err{color:#dc3545;font-size:.82rem;margin-top:.3rem;display:none}</style>
+ 
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    let imageBase64 = null;
+ 
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!KyU.auth.requireAuth()) return;
+    });
+ 
+    function updatePreview() {
+      const title = document.getElementById('title').value;
+      const price = document.getElementById('price').value;
+      const prev  = document.getElementById('pricePreview');
+      if (title || price) {
+        prev.style.display = 'block';
+        document.getElementById('titleDisp').textContent = title || 'Your Item Title';
+        document.getElementById('priceDisp').textContent = price ? `KSh ${Number(price).toLocaleString()}` : 'KSh —';
+      } else {
+        prev.style.display = 'none';
+      }
+    }
+ 
+    async function handleImage(input) {
+      if (!input.files.length) return;
+      const file = input.files[0];
+      document.getElementById('fileName').textContent = file.name;
+      imageBase64 = await KyU.resizeImage(file, 900, 0.8);
+      const prev = document.getElementById('imgPreview');
+      prev.src = imageBase64; prev.style.display = 'block';
+    }
+ 
+    function handleDrop(e) {
+      e.preventDefault();
+      const file = e.dataTransfer.files[0];
+      if (file?.type.startsWith('image/')) {
+        const input = document.getElementById('imageUpload');
+        const dt = new DataTransfer(); dt.items.add(file); input.files = dt.files;
+        handleImage(input);
+      }
+    }
+ 
+    function showErr(id, msg) { const e=document.getElementById(id); e.textContent=msg; e.style.display='block'; }
+    function clearErr(id)     { document.getElementById(id).style.display='none'; }
+ 
+    function submitForm() {
+      const title = document.getElementById('title').value.trim();
+      const cat   = document.getElementById('category').value;
+      const price = document.getElementById('price').value;
+      const desc  = document.getElementById('description').value.trim();
+      const loc   = document.getElementById('location').value.trim();
+      let ok = true;
+ 
+      if (!title)           { showErr('titleErr','Please enter a title.'); ok=false; } else clearErr('titleErr');
+      if (!cat)             { showErr('catErr','Please select a category.'); ok=false; } else clearErr('catErr');
+      if (!price || price<=0){showErr('priceErr','Please enter a valid price.'); ok=false; } else clearErr('priceErr');
+      if (!desc)            { showErr('descErr','Please add a description.'); ok=false; } else clearErr('descErr');
+      if (!loc)             { showErr('locErr','Please enter a location.'); ok=false; } else clearErr('locErr');
+      if (!ok) return;
+ 
+      const user = KyU.auth.currentUser();
+      const btn  = document.getElementById('submitBtn');
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Posting…';
+ 
+      setTimeout(() => {
+        KyU.storage.saveItem('marketplace', {
+          title,
+          category:  cat,
+          price:     Number(price),
+          condition: document.getElementById('condition').value,
+          description: desc,
+          location:  loc,
+          contact:   document.getElementById('contact').value.trim(),
+          image:     imageBase64,
+          postedBy:  user.id,
+          postedByName: user.name,
+          views:     0
+        });
+        KyU.ui.toast('Item listed successfully! 🛒','success');
+        setTimeout(() => window.location.href = 'marketplace.html', 1000);
+      }, 600);
+    }
+  </script>
+</body>
+</html>

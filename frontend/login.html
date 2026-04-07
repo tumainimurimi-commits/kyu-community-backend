@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login — KyU Community</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="kirinyaga.css">
+  <script src="app.js"></script>
+</head>
+<body>
+<div class="kyu-auth-wrap">
+  <div class="kyu-auth-card">
+    <div class="kyu-auth-head">
+      <div class="kyu-auth-logo-wrap"><i class="fa-solid fa-right-to-bracket"></i></div>
+      <h1>Welcome Back</h1>
+      <p>Sign in to your KyU Community account</p>
+    </div>
+    <div class="kyu-auth-body">
+      <div class="kyu-field">
+        <label for="email"><i class="fa-regular fa-envelope"></i> Email Address</label>
+        <input type="email" id="email" placeholder="student@kyu.ac.ke" autocomplete="email">
+      </div>
+      <div class="kyu-field">
+        <label for="password"><i class="fa-solid fa-lock"></i> Password</label>
+        <div class="kyu-input-wrap">
+          <input type="password" id="password" placeholder="Enter your password" autocomplete="current-password">
+          <button class="toggle-pw" type="button" onclick="togglePw()" tabindex="-1">
+            <i class="fa-regular fa-eye"></i>
+          </button>
+        </div>
+      </div>
+      <div class="login-err" id="loginErr"></div>
+      <button class="kyu-btn-primary" id="loginBtn" onclick="doLogin()">
+        <i class="fa-solid fa-arrow-right-to-bracket"></i>&nbsp; Sign In
+      </button>
+      <div class="kyu-auth-footer">
+        Don't have an account? <a href="register.html">Create one</a>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    if (KyU.auth.currentUser()) window.location.href = 'home.html';
+  });
+
+  function togglePw() {
+    const pw = document.getElementById('password');
+    const ic = document.querySelector('.toggle-pw i');
+    pw.type = pw.type === 'password' ? 'text' : 'password';
+    ic.className = pw.type === 'text' ? 'fa-regular fa-eye-slash' : 'fa-regular fa-eye';
+  }
+
+  async function doLogin() {
+    const email = document.getElementById('email').value.trim();
+    const pass  = document.getElementById('password').value;
+    const err   = document.getElementById('loginErr');
+    const btn   = document.getElementById('loginBtn');
+    err.style.display = 'none';
+    if (!email || !pass) { showErr('Please enter both email and password.'); return; }
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>&nbsp; Signing in…';
+    const result = await KyU.auth.login(email, pass);
+    if (result.ok) {
+      btn.innerHTML = '<i class="fa-solid fa-check"></i>&nbsp; Success!';
+      btn.style.background = 'linear-gradient(135deg,#0B3B2F,#1a5c47)';
+      btn.style.color = '#fff';
+      setTimeout(() => window.location.href = 'home.html', 700);
+    } else {
+      showErr(result.error || 'Invalid credentials.');
+      btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-arrow-right-to-bracket"></i>&nbsp; Sign In';
+      btn.style.background = ''; btn.style.color = '';
+    }
+  }
+  function showErr(m) { const e = document.getElementById('loginErr'); e.textContent = m; e.style.display = 'block'; }
+  document.addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+</script>
+</body>
+</html>

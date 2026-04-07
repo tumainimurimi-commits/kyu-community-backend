@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KyU Community — Home</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="kirinyaga.css">
+  <script src="app.js"></script>
+</head>
+<body>
+<header>
+  <!-- ── GREEN TOP BAR ── -->
+  <div class="header-top">
+    <div class="logo-kirinyaga">
+      <i class="fa-solid fa-users"></i>
+      <span>KyU Community</span>
+    </div>
+    <div class="header-buttons">
+      <div class="dropdown d-inline-block me-2">
+        <button class="btn btn-accent dropdown-toggle" type="button" data-bs-toggle="dropdown">
+          <i class="fa-solid fa-plus"></i> Add
+        </button>
+        <ul class="dropdown-menu dropdown-menu-end">
+          <li><a class="dropdown-item" href="upload-lost.html"><i class="fa-solid fa-file-lines me-2 text-warning"></i>Report Lost</a></li>
+          <li><a class="dropdown-item" href="upload-found.html"><i class="fa-solid fa-magnifying-glass me-2 text-success"></i>Report Found</a></li>
+          <li><a class="dropdown-item" href="upload-announcement.html"><i class="fa-solid fa-bullhorn me-2" style="color:#F4A300"></i>Announcement</a></li>
+          <li><a class="dropdown-item" href="upload-marketplace.html"><i class="fa-solid fa-store me-2 text-primary"></i>Marketplace</a></li>
+        </ul>
+      </div>
+      <button class="btn btn-outline-light d-lg-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileMenu">
+        <i class="fa-solid fa-bars"></i>
+      </button>
+    </div>
+  </div>
+  <!-- ── GREEN HERO ── -->
+  <div class="kirinyaga-head">
+    <h1>Kirinyaga University</h1>
+    <p>Secure Platform for Comrades to Connect</p>
+  </div>
+</header>
+
+<!-- Mobile offcanvas -->
+<div class="offcanvas offcanvas-end" tabindex="-1" id="mobileMenu">
+  <div class="offcanvas-header">
+    <h5 class="offcanvas-title">Menu</h5>
+    <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+  </div>
+  <div class="offcanvas-body">
+    <ul class="navbar-nav">
+      <li class="nav-item"><a class="nav-link" href="found.html"><i class="fa-solid fa-magnifying-glass me-2"></i>Found Items</a></li>
+      <li class="nav-item"><a class="nav-link" href="lost.html"><i class="fa-solid fa-file-lines me-2"></i>Lost Items</a></li>
+      <li class="nav-item"><a class="nav-link" href="announcement.html"><i class="fa-solid fa-bullhorn me-2"></i>Announcements</a></li>
+      <li class="nav-item"><a class="nav-link" href="marketplace.html"><i class="fa-solid fa-store me-2"></i>Marketplace</a></li>
+      <li class="nav-item mt-2"><hr></li>
+      <li class="nav-item"><a class="nav-link text-danger" href="#" onclick="KyU.auth.logout()"><i class="fa-solid fa-right-from-bracket me-2"></i>Logout</a></li>
+    </ul>
+  </div>
+</div>
+
+<!-- Desktop nav -->
+<nav class="navbar navbar-expand-lg bg-light d-none d-lg-block">
+  <div class="container">
+    <div class="navbar-nav ms-auto">
+      <a class="nav-link link-modify" href="found.html">Found Items</a>
+      <a class="nav-link link-modify" href="lost.html">Lost Items</a>
+      <a class="nav-link link-modify" href="announcement.html">Announcements</a>
+      <a class="nav-link link-modify" href="marketplace.html">Marketplace</a>
+    </div>
+  </div>
+</nav>
+
+<main>
+  <section class="welcome-note">
+    <h2 id="welcomeMsg">Welcome to KyU Community</h2>
+    <p>Secure platform for reporting lost items, finding owners, staying updated with campus announcements and connecting with the marketplace.</p>
+    <a href="lost.html" class="btn-cta">Get Started <i class="fa-solid fa-arrow-right"></i></a>
+  </section>
+
+  <div id="activityBanner" style="background:#fff3cd;border-bottom:2px solid #F4A300;padding:.75rem 2rem;text-align:center;font-size:.9rem;display:none">
+    <i class="fa-solid fa-bell" style="color:#F4A300;margin-right:.5rem"></i>
+    <span id="activityText"></span>
+  </div>
+
+  <section class="grid-container">
+    <div class="card"><i class="fa-solid fa-hourglass-half fa-2x"></i><p class="card-number" id="cntLost">0</p><p>Items Lost</p></div>
+    <div class="card"><i class="fa-solid fa-magnifying-glass fa-2x"></i><p class="card-number" id="cntFound">0</p><p>Items Found</p></div>
+    <div class="card"><i class="fa-solid fa-handshake fa-2x"></i><p class="card-number" id="cntResolved">0</p><p>Resolved</p></div>
+    <div class="card"><i class="fa-solid fa-user-group fa-2x"></i><p class="card-number" id="cntUsers">0</p><p>Members</p></div>
+    <div class="link-card"><a href="lost.html"><i class="fa-solid fa-file-lines fa-2x"></i><h3>Report Lost Item</h3><p>Lost something around campus? Report it here for quick recovery.</p></a></div>
+    <div class="link-card"><a href="found.html"><i class="fa-solid fa-magnifying-glass fa-2x"></i><h3>Report Found Item</h3><p>Found someone's item? Help return it securely to the owner.</p></a></div>
+    <div class="link-card"><a href="announcement.html"><i class="fa-solid fa-bullhorn fa-2x"></i><h3>Campus Announcements</h3><p>Latest campus news, events, and important notices.</p></a></div>
+    <div class="link-card"><a href="marketplace.html"><i class="fa-solid fa-store fa-2x"></i><h3>Marketplace</h3><p>Buy, sell, or trade verified items within KyU Community.</p></a></div>
+  </section>
+
+  <section style="max-width:1200px;margin:0 auto;padding:0 20px 2rem">
+    <h2 style="color:#0B3B2F;font-weight:700;margin-bottom:1.5rem"><i class="fa-solid fa-clock-rotate-left" style="color:#F4A300"></i> Recent Activity</h2>
+    <div id="recentFeed" style="display:grid;gap:12px">
+      <div style="text-align:center;padding:2rem;color:#aaa;background:#fff;border-radius:12px">
+        <i class="fa-solid fa-spinner fa-spin" style="font-size:2rem;margin-bottom:.5rem;display:block"></i>Loading…
+      </div>
+    </div>
+  </section>
+
+  <section class="safety-container">
+    <h2>Safety Tips</h2>
+    <div class="safety-grid">
+      <div class="card-safety"><i class="fa-solid fa-location-dot fa-xl"></i><h3>Meet in Safe Public Areas</h3><p>Always meet in safe public areas such as around Kirinyaga University.</p></div>
+      <div class="card-safety"><i class="fa-solid fa-circle-check fa-xl"></i><h3>Verify Information</h3><p>Before making any payment or agreement, confirm the details. Ask questions.</p></div>
+      <div class="card-safety"><i class="fa-solid fa-ban fa-xl"></i><h3>Avoid Advance Payments</h3><p>Do not send money before seeing the item. Inspect the product first.</p></div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="footer-grid">
+    <div class="footer-about"><h3>Kirinyaga University</h3><p>Secure platform for the KyU community to stay connected.</p></div>
+    <div class="footer-links"><h3>Quick Links</h3><nav class="footer-nav"><a href="lost.html">Report Lost</a><a href="found.html">Report Found</a><a href="announcement.html">Announcements</a><a href="marketplace.html">Marketplace</a></nav></div>
+    <div class="contact-information"><h3>Contact</h3><p><i class="fa-solid fa-phone"></i> Admin: 0791739492</p><p><i class="fa-solid fa-envelope"></i> tumainimurimi7@gmail.com</p><p><i class="fa-solid fa-envelope"></i> kyuuniversity@gmail.com</p></div>
+  </div>
+  <div class="copyright"><p>&copy; 2026 Kirinyaga University Community System. All rights reserved.</p><p>Secure | Verified | Trusted Platform</p></div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', async () => {
+  if (!KyU.auth.requireAuth()) return;
+  KyU.ui.injectUserNav();
+
+  const user = KyU.auth.currentUser();
+  document.getElementById('welcomeMsg').textContent = `Welcome back, ${(user.name||'Student').split(' ')[0]}! 👋`;
+
+  // Load stats + feed in parallel
+  const [lost, found, marketplace, announcements] = await Promise.all([
+    KyU.storage.getItems('lost'),
+    KyU.storage.getItems('found'),
+    KyU.storage.getItems('marketplace'),
+    KyU.storage.getItems('announcements'),
+  ]);
+
+  const resolved = [...lost, ...found].filter(i => i.status === 'resolved').length;
+  const users    = (KyU.storage.get('kyu_users') || []).length;
+
+  KyU.ui.animateCounter(document.getElementById('cntLost'),     lost.length);
+  KyU.ui.animateCounter(document.getElementById('cntFound'),    found.length);
+  KyU.ui.animateCounter(document.getElementById('cntResolved'), resolved);
+  KyU.ui.animateCounter(document.getElementById('cntUsers'),    Math.max(users, 1));
+
+  // Activity banner
+  const allItems = [...lost, ...found, ...marketplace, ...announcements];
+  const recent   = allItems.filter(i => Date.now() - new Date(i.createdAt) < 3_600_000);
+  if (recent.length) {
+    document.getElementById('activityBanner').style.display = 'block';
+    document.getElementById('activityText').textContent = `${recent.length} new post${recent.length > 1 ? 's' : ''} in the last hour!`;
+  }
+
+  // Recent feed
+  const feed = document.getElementById('recentFeed');
+  const all  = [
+    ...lost.map(i => ({ ...i, _type:'Lost' })),
+    ...found.map(i => ({ ...i, _type:'Found' })),
+    ...marketplace.map(i => ({ ...i, _type:'Market' })),
+    ...announcements.map(i => ({ ...i, _type:'Announcement' })),
+  ].sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt)).slice(0,6);
+
+  if (!all.length) {
+    feed.innerHTML = `<div style="text-align:center;padding:2rem;color:#aaa;background:#fff;border-radius:12px"><i class="fa-solid fa-inbox" style="font-size:2rem;margin-bottom:.5rem;display:block"></i>No activity yet. Be the first to post!</div>`;
+    return;
+  }
+
+  const typeColors = { Lost:'#dc3545', Found:'#0B3B2F', Market:'#0d6efd', Announcement:'#F4A300' };
+  const typeIcons  = { Lost:'triangle-exclamation', Found:'magnifying-glass', Market:'store', Announcement:'bullhorn' };
+  const typeLinks  = { Lost:'lost.html', Found:'found.html', Market:'marketplace.html', Announcement:'announcement.html' };
+
+  feed.innerHTML = all.map(item => `
+    <div class="kyu-card-anim" style="background:#fff;border-radius:10px;padding:1rem 1.2rem;display:flex;align-items:center;gap:1rem;box-shadow:0 2px 8px rgba(0,0,0,.07);cursor:pointer" onclick="window.location.href='${typeLinks[item._type]}'">
+      <div style="width:44px;height:44px;background:${typeColors[item._type]};border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+        <i class="fa-solid fa-${typeIcons[item._type]}" style="color:#fff;font-size:1.1rem"></i>
+      </div>
+      <div style="flex:1;min-width:0">
+        <div style="font-weight:600;color:#333;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${item.title||item.description?.substring(0,40)||'Untitled'}</div>
+        <div style="font-size:.82rem;color:#888">${item._type} · ${KyU.ui.timeAgo(item.createdAt)}</div>
+      </div>
+      <i class="fa-solid fa-chevron-right" style="color:#ddd"></i>
+    </div>`).join('');
+});
+</script>
+</body>
+</html>
